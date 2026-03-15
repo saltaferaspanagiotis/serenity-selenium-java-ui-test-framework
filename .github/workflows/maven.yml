@@ -28,6 +28,8 @@ jobs:
 
     - name: Set up Chrome
       uses: browser-actions/setup-chrome@v1
+    - name: Set up ChromeDriver
+      uses: nanasess/setup-chromedriver@v2
 
     - name: Set up Firefox
       uses: browser-actions/setup-firefox@v1
@@ -36,4 +38,10 @@ jobs:
       uses: browser-actions/setup-edge@v1
 
     - name: Build with Maven
-      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@SamplePages_01" -Djasypt.encryptor.password="Tester123" -Denvironment=chrome
+      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@SamplePages_01" -Djasypt.encryptor.password="Tester123" -Denvironment="chrome-headless"
+
+    - name: Upload Serenity Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: serenity-report
+        path: target/site/serenity/

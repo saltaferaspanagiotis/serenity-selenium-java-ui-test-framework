@@ -1,0 +1,13 @@
+homePageUrl: https://play1.automationcamp.ir/
+homePageTitle: The Playground
+pizzaHouseUrl: http://pizzahouse.automationcamp.ir/
+users:
+  validUser:
+    username: admin
+    password: ENC(dBt5+m+2DA9j6pNzjaBrbOyaRbJHy3YivAzbadGdRTFsonMnJ8I7b40W1pcL3zql)
+  invalidUsername:
+    username: invaliduser
+    password: ENC(9nqfyyWKlEsFRzrSpuBpeN0QZLe3p7y0G5cEk4mhuLQ9K0a1Ei75mBl9a+E46NNv)
+  invalidPassword:
+    username: admin
+    password: invalidpassword

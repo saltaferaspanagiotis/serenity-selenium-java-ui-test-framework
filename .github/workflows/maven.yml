@@ -61,7 +61,7 @@ jobs:
         java-version: '21'
 
     - name: Build with Maven
-      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@SamplePages_01" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-${{ matrix.browser }}"
+      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@FileDownload" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-${{ matrix.browser }}"
 
     - name: Upload Serenity Report
       if: always()

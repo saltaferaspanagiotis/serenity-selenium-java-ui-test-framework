@@ -5,17 +5,46 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-name: Java CI with Maven
+name: Selenium UI Tests
 
 on:
   push:
-    branches: [ "main", "release/1.0.0" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main", "release/1.0.0" ]
+    branches: [ "main" ]
+
 
 jobs:
-  build:
+  selenium-grid-tests:
     runs-on: ubuntu-latest
+
+    services:
+      selenium-hub:
+        image: selenium/hub:4.21
+        ports:
+          - 4444:4444
+
+      chrome:
+        image: selenium/node-chrome:4.21
+        options: --shm-size=2g
+        env:
+          SE_EVENT_BUS_HOST: selenium-hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      firefox:
+        image: selenium/node-firefox:4.21
+        options: --shm-size=2g
+        env:
+          SE_EVENT_BUS_HOST: selenium-hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      edge:
+        image: selenium/node-edge:4.21
+        options: --shm-size=2g
+        env:
+            SE_EVENT_BUS_HOST: selenium-hub
+            SE_EVENT_BUS_PUBLISH_PORT: 4442
+            SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
 
     steps:
     - uses: actions/checkout@v4
@@ -26,19 +55,8 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
 
-    - name: Set up Chrome
-      uses: browser-actions/setup-chrome@v1
-    - name: Set up ChromeDriver
-      uses: nanasess/setup-chromedriver@v2
-
-    - name: Set up Firefox
-      uses: browser-actions/setup-firefox@v1
-
-    - name: Set up Edge
-      uses: browser-actions/setup-edge@v1
-
     - name: Build with Maven
-      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@SamplePages_01" -Djasypt.encryptor.password="Tester123" -Denvironment="chrome-headless"
+      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@SamplePages_01" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-chrome"
 
     - name: Upload Serenity Report
       uses: actions/upload-artifact@v4

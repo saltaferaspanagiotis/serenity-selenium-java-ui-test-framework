@@ -18,6 +18,11 @@ jobs:
   selenium-grid-tests:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [ chrome, firefox, edge ]
+
     services:
       selenium-hub:
         image: selenium/hub:4.21
@@ -56,10 +61,11 @@ jobs:
         java-version: '21'
 
     - name: Build with Maven
-      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@SamplePages_01" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-chrome"
+      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@SamplePages_01" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-${{ matrix.browser }}"
 
     - name: Upload Serenity Report
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: serenity-report
+        name: serenity-report-${{ matrix.browser }}
         path: target/site/serenity/

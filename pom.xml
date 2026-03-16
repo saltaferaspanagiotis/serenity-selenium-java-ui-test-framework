@@ -204,6 +204,13 @@
                             <goal>aggregate</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>serenity-reports-verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

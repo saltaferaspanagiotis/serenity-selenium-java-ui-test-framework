@@ -5,6 +5,8 @@ import demo.bdd.utils.Element;
 import demo.bdd.utils.Wait;
 import net.serenitybdd.core.pages.PageObject;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -61,14 +63,10 @@ public class MouseActionsUI extends PageObject {
     }
 
     public void dragDraggableElementToDropZone() {
-        Element.scrollIntoView(getDriver(), $(MouseActionsPage.DRAGGABLE_ELEMENT));
-        Wait.browserWaitFor(1000);
-        new Actions(getDriver())
-                .clickAndHold($(MouseActionsPage.DRAGGABLE_ELEMENT))
-                .pause(Duration.ofMillis(500))
-                .moveToElement($(MouseActionsPage.DROP_ZONE),5,5)
-                .pause(Duration.ofMillis(500))
-                .release()
-                .perform();
+        WebElement source = $(MouseActionsPage.DRAGGABLE_ELEMENT);
+        WebElement target = $(MouseActionsPage.DROP_ZONE);
+        Element.scrollIntoView(getDriver(), source);
+        Wait.browserWaitFor(500);
+        Element.simulateHtml5DragAndDrop(getDriver(), source, target);
     }
 }

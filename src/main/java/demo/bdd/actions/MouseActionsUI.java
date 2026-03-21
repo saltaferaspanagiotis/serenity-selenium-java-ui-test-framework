@@ -62,6 +62,7 @@ public class MouseActionsUI extends PageObject {
 
     public void dragDraggableElementToDropZone() {
         Element.scrollIntoView(getDriver(), $(MouseActionsPage.DRAGGABLE_ELEMENT));
+        Wait.browserWaitFor(1000);
         new Actions(getDriver())
                 .clickAndHold($(MouseActionsPage.DRAGGABLE_ELEMENT))
                 .pause(Duration.ofMillis(500))

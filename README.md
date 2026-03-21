@@ -103,23 +103,13 @@ prefs {
 
 ```bash
 # Run all tests (uses Maven Failsafe)
-mvn clean verify \
-  -Dspring.profiles.active=test \
-  -Djasypt.encryptor.password=Tester123 \
-  -Denvironment=chrome
+mvn clean verify -Dspring.profiles.active=test -Djasypt.encryptor.password=Tester123 -Denvironment=chrome
 
 # Run tests filtered by tag
-mvn clean verify \
-  -Dspring.profiles.active=test \
-  -Djasypt.encryptor.password=Tester123 \
-  -Denvironment=chrome \
-  -Dcucumber.filter.tags="@YourTag"
+mvn clean verify -Dspring.profiles.active=test -Djasypt.encryptor.password=Tester123 -Denvironment=chrome -Dcucumber.filter.tags="@YourTag"
 
 # Run with a different browser
-mvn clean verify \
-  -Dspring.profiles.active=test \
-  -Djasypt.encryptor.password=Tester123 \
-  -Denvironment=firefox
+mvn clean verify -Dspring.profiles.active=test -Djasypt.encryptor.password=Tester123 -Denvironment=firefox
 ```
 
 > **Note:** `mvn verify` triggers both the `integration-test` and `verify` phases via the Failsafe plugin, which is how Serenity reports are aggregated correctly.

@@ -74,7 +74,7 @@ jobs:
         done
 
     - name: Build with Maven
-      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@Forms_12" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-${{ matrix.browser }}" -Dserenity.context="${{ matrix.browser }}"
+      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@UI" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-${{ matrix.browser }}" -Dserenity.context="${{ matrix.browser }}"
 
     - name: Upload Serenity Report
       if: always()

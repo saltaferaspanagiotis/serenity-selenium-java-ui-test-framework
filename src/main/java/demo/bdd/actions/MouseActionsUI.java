@@ -9,6 +9,8 @@ import org.openqa.selenium.interactions.Actions;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Component
 @Scope("prototype")
 public class MouseActionsUI extends PageObject {
@@ -61,7 +63,11 @@ public class MouseActionsUI extends PageObject {
     public void dragDraggableElementToDropZone() {
         Element.scrollIntoView(getDriver(), $(MouseActionsPage.DRAGGABLE_ELEMENT));
         new Actions(getDriver())
-                .dragAndDrop($(MouseActionsPage.DRAGGABLE_ELEMENT), $(MouseActionsPage.DROP_ZONE))
+                .clickAndHold($(MouseActionsPage.DRAGGABLE_ELEMENT))
+                .pause(Duration.ofMillis(500))
+                .moveToElement($(MouseActionsPage.DROP_ZONE))
+                .pause(Duration.ofMillis(500))
+                .release()
                 .perform();
     }
 }

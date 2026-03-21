@@ -66,7 +66,7 @@ public class MouseActionsUI extends PageObject {
         new Actions(getDriver())
                 .clickAndHold($(MouseActionsPage.DRAGGABLE_ELEMENT))
                 .pause(Duration.ofMillis(500))
-                .moveToElement($(MouseActionsPage.DROP_ZONE))
+                .moveToElement($(MouseActionsPage.DROP_ZONE),5,5)
                 .pause(Duration.ofMillis(500))
                 .release()
                 .perform();

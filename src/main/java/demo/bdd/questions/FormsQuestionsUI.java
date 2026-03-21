@@ -92,9 +92,18 @@ public class FormsQuestionsUI extends PageObject {
     }
 
     public void verifyFileIsDownloaded(String expectedFileName) {
-        Wait.browserWaitFor(3000);
-        File file = Download.getFileFromLocation(System.getProperty("user.home") + File.separator + "Downloads", expectedFileName);
-        Assertions.assertNotNull(file, "Expected file '" + expectedFileName + "' to be downloaded but it was not found in the download location");
+        String environment = System.getProperty("environment", "");
+        String downloadPath = environment.contains("grid")
+                ? "/tmp/selenium-downloads"
+                : System.getProperty("user.home") + File.separator + "Downloads";
+
+        File file = null;
+        for (int i = 0; i < 15; i++) {
+            file = Download.getFileFromLocation(downloadPath, expectedFileName);
+            if (file != null) break;
+            Wait.browserWaitFor(2000);
+        }
+        Assertions.assertNotNull(file, "Expected file '" + expectedFileName + "' to be downloaded but it was not found in: " + downloadPath);
         Assertions.assertTrue(file.exists());
         Assertions.assertTrue(file.delete());
     }

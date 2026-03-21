@@ -2,6 +2,7 @@ package demo.bdd.actions;
 
 import demo.bdd.locators.FormsPage;
 import demo.bdd.utils.Element;
+import demo.bdd.utils.Upload;
 import demo.bdd.utils.Wait;
 import net.serenitybdd.core.pages.PageObject;
 import org.openqa.selenium.Keys;
@@ -108,10 +109,12 @@ public class FormsActionsUI extends PageObject {
     }
 
     public void uploadCV(String filePath) {
+        Upload.setLocalFileDetectorIfGrid(getDriver());
         $(FormsPage.UPLOAD_CV).sendKeys(new File(filePath).getAbsolutePath());
     }
 
     public void uploadMultipleFiles(List<String> filePaths) {
+        Upload.setLocalFileDetectorIfGrid(getDriver());
         String combinedFilePaths = String.join("\n", filePaths.stream()
                 .map(path -> new File(path).getAbsolutePath())
                 .toArray(String[]::new));

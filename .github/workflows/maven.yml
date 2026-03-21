@@ -1,0 +1,86 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+name: Selenium UI Tests
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+
+jobs:
+  selenium-grid-tests:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [ chrome, firefox ]
+
+    services:
+      selenium-hub:
+        image: selenium/hub:4.21
+        ports:
+          - 4444:4444
+
+      chrome:
+        image: selenium/node-chrome:4.21
+        options: --shm-size=2g
+        volumes:
+          - /tmp/selenium-downloads:/home/seluser/Downloads
+        env:
+          SE_EVENT_BUS_HOST: selenium-hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      firefox:
+        image: selenium/node-firefox:4.21
+        options: --shm-size=2g
+        volumes:
+          - /tmp/selenium-downloads:/home/seluser/Downloads
+        env:
+          SE_EVENT_BUS_HOST: selenium-hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Create shared downloads directory
+      run: sudo chmod 777 /tmp/selenium-downloads
+
+    - name: Wait for Selenium Grid
+      run: |
+        echo "Waiting for Selenium Grid to be ready..."
+        for i in $(seq 1 30); do
+          STATUS=$(curl -s http://localhost:4444/wd/hub/status | python3 -c "import sys,json; print(json.load(sys.stdin)['value']['ready'])" 2>/dev/null)
+          if [ "$STATUS" = "True" ]; then
+            echo "Selenium Grid is ready."
+            break
+          fi
+          echo "Attempt $i: Grid not ready yet, waiting 5s..."
+          sleep 5
+        done
+
+    - name: Build with Maven
+      run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@UI" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-${{ matrix.browser }}" -Dserenity.context="${{ matrix.browser }}"
+
+    - name: Upload Serenity Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: serenity-report-${{ matrix.browser }}
+        path: target/site/serenity/

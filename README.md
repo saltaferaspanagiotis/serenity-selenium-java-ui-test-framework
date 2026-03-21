@@ -22,8 +22,7 @@ No manual WebDriver installation is needed — Selenium Manager handles driver b
 ## Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd serenity_java_selenium_tests_demo_project
+git clone https://github.com/saltaferaspanagiotis/serenity-selenium-java-ui-test-framework.git
 ```
 
 ---
@@ -70,7 +69,6 @@ Supported environments (configured in `src/test/resources/serenity.conf`):
 |---|---|
 | `chrome` | Google Chrome |
 | `firefox` | Mozilla Firefox |
-| `edge` | Microsoft Edge |
 
 For Chrome, the download directory in `serenity.conf` may need to be updated to match your local path:
 
@@ -105,23 +103,13 @@ prefs {
 
 ```bash
 # Run all tests (uses Maven Failsafe)
-mvn clean verify \
-  -Dspring.profiles.active=test \
-  -Djasypt.encryptor.password=Tester123 \
-  -Denvironment=chrome
+mvn clean verify -Dspring.profiles.active=test -Djasypt.encryptor.password=Tester123 -Denvironment=chrome
 
 # Run tests filtered by tag
-mvn clean verify \
-  -Dspring.profiles.active=test \
-  -Djasypt.encryptor.password=Tester123 \
-  -Denvironment=chrome \
-  -Dcucumber.filter.tags="@YourTag"
+mvn clean verify -Dspring.profiles.active=test -Djasypt.encryptor.password=Tester123 -Denvironment=chrome -Dcucumber.filter.tags="@YourTag"
 
 # Run with a different browser
-mvn clean verify \
-  -Dspring.profiles.active=test \
-  -Djasypt.encryptor.password=Tester123 \
-  -Denvironment=firefox
+mvn clean verify -Dspring.profiles.active=test -Djasypt.encryptor.password=Tester123 -Denvironment=firefox
 ```
 
 > **Note:** `mvn verify` triggers both the `integration-test` and `verify` phases via the Failsafe plugin, which is how Serenity reports are aggregated correctly.
@@ -187,6 +175,6 @@ mvn serenity:aggregate
 |-------------------------------|---------------------------------------------|-------------------------------------------|
 | `-Dspring.profiles.active`    | Activates the Spring config profile         | `test`                                    |
 | `-Djasypt.encryptor.password` | Decryption key for encrypted credentials    | `Tester123`                               |
-| `-Denvironment`               | Browser environment (from `serenity.conf`)  | `chrome`, `firefox`, `edge`               |
+| `-Denvironment`               | Browser environment (from `serenity.conf`)  | `chrome`, `firefox`               |
 | `-Dcucumber.filter.tags`      | Cucumber tag expression to filter scenarios | `@SamplePages_01`                         |
 | `-Dcucumber.execution.parallel.enabled` | Activates parallel execution                | `true`                                    |

@@ -1,9 +1,11 @@
 package demo.bdd.actions;
 
 import demo.bdd.locators.MouseActionsPage;
+import demo.bdd.utils.Element;
 import demo.bdd.utils.Wait;
 import net.serenitybdd.core.pages.PageObject;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -58,8 +60,10 @@ public class MouseActionsUI extends PageObject {
     }
 
     public void dragDraggableElementToDropZone() {
-        new Actions(getDriver())
-                .dragAndDrop($(MouseActionsPage.DRAGGABLE_ELEMENT), $(MouseActionsPage.DROP_ZONE))
-                .perform();
+        WebElement source = $(MouseActionsPage.DRAGGABLE_ELEMENT);
+        WebElement target = $(MouseActionsPage.DROP_ZONE);
+        Element.scrollIntoView(getDriver(), source);
+        Wait.browserWaitFor(500);
+        Element.simulateHtml5DragAndDrop(getDriver(), source, target);
     }
 }

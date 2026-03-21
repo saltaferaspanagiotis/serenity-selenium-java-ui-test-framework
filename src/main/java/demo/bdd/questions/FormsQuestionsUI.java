@@ -94,7 +94,6 @@ public class FormsQuestionsUI extends PageObject {
     }
 
     public void verifyFileIsDownloaded(String expectedFileName) {
-        Wait.browserWaitFor(3000);
         String environment = System.getProperty("environment", "");
         File file;
         if (environment.contains("grid")) {
@@ -107,6 +106,7 @@ public class FormsQuestionsUI extends PageObject {
                 throw new RuntimeException("Failed to retrieve file from Selenium Grid: " + e.getMessage(), e);
             }
         } else {
+            Wait.browserWaitFor(5000);
             file = Download.getFileFromLocation(System.getProperty("user.home") + File.separator + "Downloads", expectedFileName);
         }
         Assertions.assertNotNull(file, "Expected file '" + expectedFileName + "' to be downloaded but it was not found in the download location");

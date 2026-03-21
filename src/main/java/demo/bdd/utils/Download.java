@@ -1,5 +1,6 @@
 package demo.bdd.utils;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -24,6 +25,8 @@ public class Download {
     }
 
     public static File getFileFromGrid(String gridUrl, String sessionId, String fileName, String saveDirPath) throws Exception {
+        waitForFileOnGrid(gridUrl, sessionId, fileName, 15, 2000);
+
         URL url = new URL(gridUrl + "/session/" + sessionId + "/se/files");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -67,5 +70,47 @@ public class Download {
             }
         }
         return null;
+    }
+
+    private static void waitForFileOnGrid(String gridUrl, String sessionId, String fileName, int maxAttempts, long pollIntervalMs) throws Exception {
+        for (int i = 0; i < maxAttempts; i++) {
+            if (isFileListedOnGrid(gridUrl, sessionId, fileName)) {
+                return;
+            }
+            Thread.sleep(pollIntervalMs);
+        }
+        throw new RuntimeException("File '" + fileName + "' did not appear on Selenium Grid after " + (maxAttempts * pollIntervalMs / 1000) + " seconds");
+    }
+
+    private static boolean isFileListedOnGrid(String gridUrl, String sessionId, String fileName) {
+        try {
+            URL url = new URL(gridUrl + "/session/" + sessionId + "/se/files");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            if (conn.getResponseCode() != 200) {
+                return false;
+            }
+
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+            }
+
+            JSONArray names = new JSONObject(response.toString())
+                    .getJSONObject("value")
+                    .getJSONArray("names");
+
+            for (int i = 0; i < names.length(); i++) {
+                if (names.getString(i).equals(fileName)) {
+                    return true;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

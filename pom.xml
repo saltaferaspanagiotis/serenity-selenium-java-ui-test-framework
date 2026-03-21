@@ -180,7 +180,7 @@
                 <version>${maven.failsafe.plugin.version}</version>
                 <configuration>
                     <includes>
-                        <include>**/SuiteRunner.java</include>
+                        <include>**/TestSuiteRunner.java</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -200,13 +200,6 @@
                     <execution>
                         <id>serenity-reports</id>
                         <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>aggregate</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>serenity-reports-verify</id>
-                        <phase>verify</phase>
                         <goals>
                             <goal>aggregate</goal>
                         </goals>

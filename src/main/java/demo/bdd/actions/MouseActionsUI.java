@@ -1,6 +1,7 @@
 package demo.bdd.actions;
 
 import demo.bdd.locators.MouseActionsPage;
+import demo.bdd.utils.Element;
 import demo.bdd.utils.Wait;
 import net.serenitybdd.core.pages.PageObject;
 import org.openqa.selenium.By;
@@ -58,6 +59,7 @@ public class MouseActionsUI extends PageObject {
     }
 
     public void dragDraggableElementToDropZone() {
+        Element.scrollIntoView(getDriver(), $(MouseActionsPage.DRAGGABLE_ELEMENT));
         new Actions(getDriver())
                 .dragAndDrop($(MouseActionsPage.DRAGGABLE_ELEMENT), $(MouseActionsPage.DROP_ZONE))
                 .perform();

@@ -1,16 +1,27 @@
 package demo.bdd.utils;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.common.collect.ImmutableMap;
 
-import java.io.*;
-import java.net.HttpURLConnection;
+import net.serenitybdd.model.environment.EnvironmentSpecificConfiguration;
+import net.serenitybdd.model.environment.ConfiguredEnvironment;
+import net.thucydides.core.pages.PageObject;
+import net.thucydides.model.util.EnvironmentVariables;
+import net.thucydides.core.webdriver.ThucydidesWebDriverSupport;
+import org.openqa.selenium.json.Json;
+import org.openqa.selenium.remote.http.Contents;
+import org.openqa.selenium.remote.http.HttpClient;
+import org.openqa.selenium.remote.http.HttpMethod;
+import org.openqa.selenium.remote.http.HttpRequest;
+import org.openqa.selenium.remote.http.HttpResponse;
+import org.openqa.selenium.io.Zip;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.net.URL;
-import java.util.Base64;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
-public class Download {
+public class Download extends PageObject {
 
     public static File getFileFromLocation(String filePath, String fileName) {
         File dir = new File(filePath);
@@ -24,93 +35,41 @@ public class Download {
         return null;
     }
 
-    public static File getFileFromGrid(String gridUrl, String sessionId, String fileName, String saveDirPath) throws Exception {
-        waitForFileOnGrid(gridUrl, sessionId, fileName, 15, 2000);
-
-        URL url = new URL(gridUrl + "/session/" + sessionId + "/se/files");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
-
-        String body = "{\"name\": \"" + fileName + "\"}";
-        try (OutputStream os = conn.getOutputStream()) {
-            os.write(body.getBytes());
-        }
-
-        StringBuilder response = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                response.append(line);
-            }
-        }
-
-        String base64Contents = new JSONObject(response.toString())
-                .getJSONObject("value")
-                .getString("contents");
-
-        byte[] zipBytes = Base64.getDecoder().decode(base64Contents);
+    public static File getFileFromGrid(String fileName, String saveDirPath) throws Exception {
+        EnvironmentVariables environmentVariables = ConfiguredEnvironment.getEnvironmentVariables();
+        String remoteUrl = EnvironmentSpecificConfiguration.from(environmentVariables).getProperty("webdriver.remote.url");
+        URL gridUrl = new URL(remoteUrl);
+        String sessionId = ThucydidesWebDriverSupport.getSessionId().toString();
+        String endpoint = "/session/%s/se/files".formatted(sessionId);
         File saveDir = new File(saveDirPath);
 
-        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
-            ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                if (entry.getName().equals(fileName)) {
-                    File outFile = new File(saveDir, fileName);
-                    try (FileOutputStream fos = new FileOutputStream(outFile)) {
-                        byte[] buffer = new byte[4096];
-                        int len;
-                        while ((len = zis.read(buffer)) > 0) {
-                            fos.write(buffer, 0, len);
-                        }
-                    }
-                    return outFile;
-                }
-            }
-        }
-        return null;
-    }
+        int maxAttempts = 15;
+        long pollIntervalMs = 2000;
+        Exception lastException = null;
 
-    private static void waitForFileOnGrid(String gridUrl, String sessionId, String fileName, int maxAttempts, long pollIntervalMs) throws Exception {
         for (int i = 0; i < maxAttempts; i++) {
-            if (isFileListedOnGrid(gridUrl, sessionId, fileName)) {
-                return;
+            try (HttpClient client = HttpClient.Factory.createDefault().createClient(gridUrl)) {
+                HttpRequest request = new HttpRequest(HttpMethod.POST, endpoint);
+                String jsonPayload = new Json().toJson(ImmutableMap.of("name", fileName));
+                request.setContent(() -> new ByteArrayInputStream(jsonPayload.getBytes(StandardCharsets.UTF_8)));
+
+                HttpResponse response = client.execute(request);
+                Map<String, Object> map = new Json().toType(Contents.string(response), Json.MAP_TYPE);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> valueMap = (Map<String, Object>) map.get("value");
+                String encodedContents = valueMap != null ? (String) valueMap.get("contents") : null;
+
+                if (encodedContents != null) {
+                    Zip.unzip(encodedContents, saveDir);
+                    return new File(saveDir, fileName);
+                }
+            } catch (Exception e) {
+                lastException = e;
             }
             Thread.sleep(pollIntervalMs);
         }
-        throw new RuntimeException("File '" + fileName + "' did not appear on Selenium Grid after " + (maxAttempts * pollIntervalMs / 1000) + " seconds");
-    }
 
-    private static boolean isFileListedOnGrid(String gridUrl, String sessionId, String fileName) {
-        try {
-            URL url = new URL(gridUrl + "/session/" + sessionId + "/se/files");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            if (conn.getResponseCode() != 200) {
-                return false;
-            }
-
-            StringBuilder response = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    response.append(line);
-                }
-            }
-
-            JSONArray names = new JSONObject(response.toString())
-                    .getJSONObject("value")
-                    .getJSONArray("names");
-
-            for (int i = 0; i < names.length(); i++) {
-                if (names.getString(i).equals(fileName)) {
-                    return true;
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return false;
+        throw new RuntimeException("File '" + fileName + "' did not appear on Selenium Grid after " +
+                (maxAttempts * pollIntervalMs / 1000) + " seconds", lastException);
     }
 }

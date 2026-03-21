@@ -5,10 +5,8 @@ import demo.bdd.locators.FormsPage;
 import demo.bdd.utils.Download;
 import demo.bdd.utils.Wait;
 import net.serenitybdd.core.pages.PageObject;
-import net.thucydides.core.webdriver.WebDriverFacade;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Assertions;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -98,10 +96,8 @@ public class FormsQuestionsUI extends PageObject {
         File file;
         if (environment.contains("grid")) {
             try {
-                RemoteWebDriver remoteDriver = (RemoteWebDriver) ((WebDriverFacade) getDriver()).getProxiedDriver();
-                String sessionId = remoteDriver.getSessionId().toString();
                 String savePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "testdata";
-                file = Download.getFileFromGrid("http://localhost:4444", sessionId, expectedFileName, savePath);
+                file = Download.getFileFromGrid(expectedFileName, savePath);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to retrieve file from Selenium Grid: " + e.getMessage(), e);
             }

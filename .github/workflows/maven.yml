@@ -32,21 +32,21 @@ jobs:
       chrome:
         image: selenium/node-chrome:4.21
         options: --shm-size=2g
+        volumes:
+          - /tmp/selenium-downloads:/home/seluser/Downloads
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-          SE_ENABLE_MANAGED_DOWNLOADS: "true"
-          SE_NODE_ARGS: "--enable-managed-downloads"
       firefox:
         image: selenium/node-firefox:4.21
         options: --shm-size=2g
+        volumes:
+          - /tmp/selenium-downloads:/home/seluser/Downloads
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-          SE_ENABLE_MANAGED_DOWNLOADS: "true"
-          SE_NODE_ARGS: "--enable-managed-downloads"
 
     steps:
     - uses: actions/checkout@v4
@@ -56,6 +56,9 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '21'
+
+    - name: Create shared downloads directory
+      run: mkdir -p /tmp/selenium-downloads && chmod 777 /tmp/selenium-downloads
 
     - name: Wait for Selenium Grid
       run: |

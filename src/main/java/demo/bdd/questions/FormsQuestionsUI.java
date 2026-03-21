@@ -93,19 +93,17 @@ public class FormsQuestionsUI extends PageObject {
 
     public void verifyFileIsDownloaded(String expectedFileName) {
         String environment = System.getProperty("environment", "");
-        File file;
-        if (environment.contains("grid")) {
-            try {
-                String savePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "testdata";
-                file = Download.getFileFromGrid(expectedFileName, savePath);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to retrieve file from Selenium Grid: " + e.getMessage(), e);
-            }
-        } else {
-            Wait.browserWaitFor(5000);
-            file = Download.getFileFromLocation(System.getProperty("user.home") + File.separator + "Downloads", expectedFileName);
+        String downloadPath = environment.contains("grid")
+                ? "/tmp/selenium-downloads"
+                : System.getProperty("user.home") + File.separator + "Downloads";
+
+        File file = null;
+        for (int i = 0; i < 15; i++) {
+            file = Download.getFileFromLocation(downloadPath, expectedFileName);
+            if (file != null) break;
+            Wait.browserWaitFor(2000);
         }
-        Assertions.assertNotNull(file, "Expected file '" + expectedFileName + "' to be downloaded but it was not found in the download location");
+        Assertions.assertNotNull(file, "Expected file '" + expectedFileName + "' to be downloaded but it was not found in: " + downloadPath);
         Assertions.assertTrue(file.exists());
         Assertions.assertTrue(file.delete());
     }

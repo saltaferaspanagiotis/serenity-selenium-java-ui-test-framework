@@ -58,7 +58,7 @@ jobs:
         java-version: '21'
 
     - name: Create shared downloads directory
-      run: mkdir -p /tmp/selenium-downloads && chmod 777 /tmp/selenium-downloads
+      run: sudo chmod 777 /tmp/selenium-downloads
 
     - name: Wait for Selenium Grid
       run: |

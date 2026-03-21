@@ -60,6 +60,19 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
 
+    - name: Wait for Selenium Grid
+      run: |
+        echo "Waiting for Selenium Grid to be ready..."
+        for i in $(seq 1 30); do
+          STATUS=$(curl -s http://localhost:4444/wd/hub/status | python3 -c "import sys,json; print(json.load(sys.stdin)['value']['ready'])" 2>/dev/null)
+          if [ "$STATUS" = "True" ]; then
+            echo "Selenium Grid is ready."
+            break
+          fi
+          echo "Attempt $i: Grid not ready yet, waiting 5s..."
+          sleep 5
+        done
+
     - name: Build with Maven
       run: mvn clean verify -Dspring.profiles.active="test" -Dcucumber.execution.parallel.enabled=true -Dcucumber.filter.tags="@FileDownload" -Djasypt.encryptor.password="Tester123" -Denvironment="grid-${{ matrix.browser }}"
 

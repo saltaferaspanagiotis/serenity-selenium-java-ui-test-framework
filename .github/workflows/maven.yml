@@ -43,13 +43,6 @@ jobs:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-      edge:
-        image: selenium/node-edge:4.21
-        options: --shm-size=2g
-        env:
-            SE_EVENT_BUS_HOST: selenium-hub
-            SE_EVENT_BUS_PUBLISH_PORT: 4442
-            SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
 
     steps:
     - uses: actions/checkout@v4

@@ -19,14 +19,12 @@
         <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
         <logback.version>1.5.18</logback.version>
         <selenium.version>4.31.0</selenium.version>
-        <restassured.version>5.5.1</restassured.version>
         <json.org.version>20250107</json.org.version>
         <maven.failsafe.plugin.version>3.5.2</maven.failsafe.plugin.version>
         <junit.version>5.12.2</junit.version>
         <junit.platform.suite.version>1.12.1</junit.platform.suite.version>
         <cucumber.junit.platform.engine.version>7.22.0</cucumber.junit.platform.engine.version>
         <lombok.version>1.18.38</lombok.version>
-        <jsch.version>0.2.25</jsch.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -50,21 +48,6 @@
                 <version>${spring.boot.dependencies.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.rest-assured</groupId>
-                <artifactId>rest-assured</artifactId>
-                <version>${restassured.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.rest-assured</groupId>
-                <artifactId>rest-assured-common</artifactId>
-                <version>${restassured.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.rest-assured</groupId>
-                <artifactId>json-path</artifactId>
-                <version>${restassured.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -142,20 +125,10 @@
             <version>${serenity.bdd.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-rest-assured</artifactId>
-            <version>${serenity.bdd.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.mwiede</groupId>
-            <artifactId>jsch</artifactId>
-            <version>${jsch.version}</version>
         </dependency>
     </dependencies>
     <build>

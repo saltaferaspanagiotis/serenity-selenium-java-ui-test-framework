@@ -23,6 +23,7 @@ No manual WebDriver installation is needed — Selenium Manager handles driver b
 
 ```bash
 git clone https://github.com/saltaferaspanagiotis/serenity-selenium-java-ui-test-framework.git
+cd serenity-selenium-java-ui-test-framework
 ```
 
 ---
@@ -78,6 +79,49 @@ prefs {
   download.default_directory = "C:\\your\\local\\path\\src\\test\\resources\\testdata"
 }
 ```
+
+### Encrypting a value in the YAML config
+
+Sensitive values (e.g. passwords) are encrypted using [Jasypt](https://github.com/ulisesbocchio/jasypt-spring-boot) and stored with the `ENC(...)` wrapper in the YAML config.
+
+**Encryptor password:** `Tester123`
+
+> **Prerequisites:** Before running the encrypt command:
+>
+> 1. Wrap the plaintext value(s) to be encrypted with `DEC(...)` in the target YAML. Jasypt will encrypt only values in this format and replace them with `ENC(...)` ciphertext.
+     >
+     >    ```yaml
+>    authenticatedUser:
+>      password: DEC(my_plaintext_password)
+>    ```
+>
+> 2. Temporarily comment out the profile import line in `src/main/resources/application.yml`. The Jasypt Maven plugin loads the target YAML file directly and will fail if it tries to resolve the Spring profile expression at that point.
+     >
+     >    ```yaml
+>    spring:
+>      config:
+>        # import: classpath:config/application-${spring.profiles.active}.yml
+>    ```
+>
+> Restore the import line once encryption is complete.
+
+From the project root (Windows), run:
+
+```cmd
+mvn jasypt:encrypt -Djasypt.encryptor.password="Tester123" -Djasypt.plugin.path="file:src/main/resources/config/application-test.yml"
+```
+
+All plaintext values in the target YAML will be replaced with `ENC(...)` ciphertext in place.
+
+### Decrypting at runtime
+
+Pass the encryptor password as a system property when running tests:
+
+```
+-Djasypt.encryptor.password=Tester123
+```
+
+Jasypt automatically decrypts `ENC(...)` values on application startup.
 
 ---
 
